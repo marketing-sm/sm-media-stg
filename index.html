@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>年収診断</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+      background: #f5f5f3;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .container { max-width: 640px; margin: 0 auto; }
+    h1 { font-size: 24px; font-weight: 500; margin-bottom: 0.25rem; }
+    .sub { font-size: 14px; color: #666; margin-bottom: 2rem; }
+    .card {
+      background: #fff;
+      border: 0.5px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .section { margin-bottom: 1.25rem; }
+    .label { font-size: 13px; color: #666; margin-bottom: 6px; }
+    select, input[type=number] {
+      width: 100%; padding: 9px 12px; font-size: 15px;
+      border: 0.5px solid #ddd; border-radius: 8px;
+      background: #fff; color: #1a1a1a;
+      appearance: none; -webkit-appearance: none;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      padding-right: 36px; cursor: pointer;
+    }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .slider-row { display: flex; align-items: center; gap: 12px; }
+    .slider-row input[type=range] { flex: 1; accent-color: #1D9E75; }
+    .slider-val { font-size: 15px; font-weight: 500; min-width: 80px; text-align: right; }
+    button#diagnose {
+      width: 100%; padding: 13px; font-size: 15px; font-weight: 500;
+      background: #1D9E75; color: #fff;
+      border: none; border-radius: 8px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    button#diagnose:hover { background: #178a63; }
+    button#diagnose:active { transform: scale(0.98); }
+    #result { display: none; margin-top: 1rem; }
+    .result-header { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .result-big { font-size: 30px; font-weight: 500; }
+    .result-note { font-size: 13px; color: #888; margin-top: 4px; }
+    .rank-badge {
+      display: inline-block; font-size: 13px; font-weight: 500;
+      padding: 4px 14px; border-radius: 8px; margin: 0.75rem 0;
+    }
+    .bar-wrap { margin: 0.75rem 0 1.25rem; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-bottom: 6px; }
+    .bar-track { height: 10px; background: #eee; border-radius: 99px; overflow: visible; position: relative; }
+    .bar-fill { height: 100%; border-radius: 99px; background: #1D9E75; transition: width 0.6s ease; }
+    .bar-marker {
+      position: absolute; top: 50%; width: 18px; height: 18px;
+      background: #fff; border: 2.5px solid #1D9E75; border-radius: 50%;
+      transform: translate(-50%, -50%); transition: left 0.6s ease;
+    }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 1rem 0; }
+    .metric { background: #f7f7f5; border-radius: 8px; padding: 0.85rem 1rem; }
+    .metric-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+    .metric-val { font-size: 18px; font-weight: 500; }
+    .divider { height: 0.5px; background: #eee; margin: 1rem 0; }
+    .advice-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+    .advice-item { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #555; margin-bottom: 8px; line-height: 1.6; }
+    .advice-icon { color: #1D9E75; font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+    .footnote { font-size: 11px; color: #aaa; line-height: 1.6; margin-top: 0.5rem; }
+
+    @media (max-width: 480px) {
+      .grid2 { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>年収診断</h1>
+  <p class="sub">あなたの年収が日本全体でどの位置にあるか診断します</p>
+
+  <div class="card">
+    <div class="section">
+      <div class="label">年齢</div>
+      <div class="slider-row">
+        <input type="range" id="age" min="20" max="65" value="30" step="1">
+        <span class="slider-val"><span id="age-out">30</span>歳</span>
+      </div>
+    </div>
+
+    <div class="section grid2">
+      <div>
+        <div class="label">性別</div>
+        <select id="gender">
+          <option value="male">男性</option>
+          <option value="female">女性</option>
+        </select>
+      </div>
+      <div>
+        <div class="label">雇用形態</div>
+        <select id="employment">
+          <option value="full">正社員</option>
+          <option value="part">パート・アルバイト</option>
+          <option value="contract">派遣・契約社員</option>
+          <option value="self">自営業・フリーランス</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">業種</div>
+      <select id="industry">
+        <option value="it">IT・情報通信</option>
+        <option value="finance">金融・保険</option>
+        <option value="medical">医療・福祉</option>
+        <option value="manu">製造業</option>
+        <option value="retail">卸売・小売</option>
+        <option value="service">サービス業</option>
+        <option value="edu">教育・学習支援</option>
+        <option value="govt">公務員・官公庁</option>
+        <option value="other">その他</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <div class="label">現在の年収</div>
+      <div class="slider-row">
+        <input type="range" id="income" min="100" max="2000" value="400" step="10">
+        <span class="slider-val"><span id="income-out">400</span>万円</span>
+      </div>
+    </div>
+
+    <button id="diagnose">診断する</button>
+  </div>
+
+  <div id="result">
+    <div class="card">
+      <div class="result-header">あなたの年収</div>
+      <div class="result-big" id="r-income">—</div>
+      <div class="result-note" id="r-desc">—</div>
+
+      <div id="r-badge-wrap"></div>
+
+      <div class="bar-wrap">
+        <div class="bar-label">
+          <span>下位</span><span>平均</span><span>上位</span>
+        </div>
+        <div class="bar-track" id="bar-track">
+          <div class="bar-fill" id="bar-fill" style="width:0%"></div>
+          <div class="bar-marker" id="bar-marker" style="left:0%"></div>
+        </div>
+        <div class="bar-label" style="margin-top:6px;">
+          <span id="b-low">—</span>
+          <span id="b-avg">—</span>
+          <span id="b-high">—</span>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">全国での順位（推定）</div>
+          <div class="metric-val" id="r-rank">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">月収換算</div>
+          <div class="metric-val" id="r-monthly">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">同年代・同性別の平均</div>
+          <div class="metric-val" id="r-peer-avg">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">手取り概算（月）</div>
+          <div class="metric-val" id="r-takehome">—</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="advice-title">アドバイス</div>
+      <div id="r-advice"></div>
+
+      <p class="footnote">※ 国税庁・厚生労働省の統計データを基にした推計値です。実際の数値は個人の職歴・学歴・地域等により異なります。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ageEl = document.getElementById('age');
+  const incomeEl = document.getElementById('income');
+  ageEl.addEventListener('input', () => document.getElementById('age-out').textContent = ageEl.value);
+  incomeEl.addEventListener('input', () => document.getElementById('income-out').textContent = incomeEl.value);
+
+  const peerData = {
+    male: {
+      20:{avg:272,low:200,high:400}, 25:{avg:340,low:250,high:500},
+      30:{avg:430,low:300,high:620}, 35:{avg:510,low:340,high:750},
+      40:{avg:560,low:370,high:820}, 45:{avg:590,low:380,high:900},
+      50:{avg:600,low:370,high:950}, 55:{avg:580,low:350,high:900},
+      60:{avg:480,low:280,high:780}, 65:{avg:380,low:220,high:600},
+    },
+    female: {
+      20:{avg:248,low:180,high:360}, 25:{avg:295,low:210,high:420},
+      30:{avg:320,low:220,high:470}, 35:{avg:340,low:220,high:510},
+      40:{avg:350,low:220,high:530}, 45:{avg:360,low:220,high:550},
+      50:{avg:355,low:210,high:550}, 55:{avg:340,low:200,high:530},
+      60:{avg:290,low:180,high:460}, 65:{avg:240,low:160,high:380},
+    }
+  };
+  const industryAdj = {it:1.18,finance:1.22,medical:1.05,manu:1.02,retail:0.88,service:0.85,edu:0.95,govt:1.0,other:1.0};
+  const empAdj = {full:1.0,part:0.55,contract:0.78,self:0.95};
+
+  function nearestAge(age) {
+    return [20,25,30,35,40,45,50,55,60,65].reduce((a,b) => Math.abs(b-age) < Math.abs(a-age) ? b : a);
+  }
+  function calcPercentile(income, avg, low, high) {
+    if (income <= low) return Math.max(5, Math.round((income/low)*15));
+    if (income <= avg) return Math.round(15+((income-low)/(avg-low))*35);
+    if (income <= high) return Math.round(50+((income-avg)/(high-avg))*30);
+    return Math.min(97, Math.round(80+((income-high)/high)*17));
+  }
+  function estimateTakehome(annual) {
+    let tax = 0;
+    if (annual <= 195) tax = annual*0.05;
+    else if (annual <= 330) tax = 9.75+(annual-195)*0.1;
+    else if (annual <= 695) tax = 23.25+(annual-330)*0.2;
+    else if (annual <= 900) tax = 96.25+(annual-695)*0.23;
+    else if (annual <= 1800) tax = 143.4+(annual-900)*0.33;
+    else tax = 440.4+(annual-1800)*0.4;
+    return Math.round((annual - tax - annual*0.145) * 10000 / 12 / 10000);
+  }
+
+  document.getElementById('diagnose').addEventListener('click', () => {
+    const age = parseInt(ageEl.value);
+    const gender = document.getElementById('gender').value;
+    const employment = document.getElementById('employment').value;
+    const industry = document.getElementById('industry').value;
+    const income = parseInt(incomeEl.value);
+
+    const baseAge = nearestAge(age);
+    const peer = peerData[gender][baseAge];
+    const adjAvg = Math.round(peer.avg * industryAdj[industry] * empAdj[employment]);
+    const adjLow = Math.round(peer.low * industryAdj[industry] * empAdj[employment]);
+    const adjHigh = Math.round(peer.high * industryAdj[industry] * empAdj[employment]);
+    const pct = calcPercentile(income, adjAvg, adjLow, adjHigh);
+
+    document.getElementById('r-income').textContent = income.toLocaleString() + '万円';
+    document.getElementById('r-desc').textContent = (gender==='male'?`${age}歳・男性`:`${age}歳・女性`) + '・選択業種の統計と比較';
+
+    let rankLabel, rankBg, rankColor;
+    if (pct >= 80) { rankLabel='上位'+(100-pct)+'%以内　優秀'; rankBg='#E1F5EE'; rankColor='#0F6E56'; }
+    else if (pct >= 60) { rankLabel='上位'+(100-pct)+'%以内　高め'; rankBg='#EAF3DE'; rankColor='#3B6D11'; }
+    else if (pct >= 40) { rankLabel='平均的な年収水準'; rankBg='#F1EFE8'; rankColor='#5F5E5A'; }
+    else if (pct >= 20) { rankLabel='平均やや下'; rankBg='#FAEEDA'; rankColor='#854F0B'; }
+    else { rankLabel='平均を下回る水準'; rankBg='#FAECE7'; rankColor='#993C1D'; }
+
+    document.getElementById('r-badge-wrap').innerHTML =
+      `<span class="rank-badge" style="background:${rankBg};color:${rankColor};">${rankLabel}</span>`;
+
+    setTimeout(() => {
+      document.getElementById('bar-fill').style.width = pct+'%';
+      document.getElementById('bar-marker').style.left = pct+'%';
+    }, 50);
+
+    document.getElementById('b-low').textContent = adjLow+'万円';
+    document.getElementById('b-avg').textContent = adjAvg+'万円';
+    document.getElementById('b-high').textContent = adjHigh+'万円';
+    document.getElementById('r-rank').textContent = '上位'+(100-pct)+'%';
+    document.getElementById('r-monthly').textContent = Math.round(income/12)+'万円';
+    document.getElementById('r-peer-avg').textContent = adjAvg+'万円';
+    document.getElementById('r-takehome').textContent = '約'+estimateTakehome(income)+'万円';
+
+    const gap = income - adjAvg;
+    const advice = gap < 0 ? [
+      { text:'同年代・同業種の平均まで'+Math.abs(gap)+'万円の差があります。スキルアップや転職で改善できる可能性があります。' },
+      { text:'IT・金融など高年収業種へのキャリアチェンジも選択肢のひとつです。' },
+      { text:'資格取得や副業で収入の柱を増やすことも検討してみましょう。' },
+    ] : income < adjHigh ? [
+      { text:'平均より高い年収水準です。引き続きスキルを磨き、さらなる昇給・昇格を目指しましょう。' },
+      { text:'資産運用（NISA・iDeCoなど）を活用して、収入をさらに増やす機会を探してみましょう。' },
+      { text:'マネジメントや専門職へのキャリアアップで、さらに上位層を目指せます。' },
+    ] : [
+      { text:'同年代・同業種の上位層に位置します。高い市場価値を維持しましょう。' },
+      { text:'税金対策（法人化・節税）や長期的な資産形成を本格的に検討する時期です。' },
+      { text:'メンタリングや社外活動でさらなる影響力とキャリアの幅を広げましょう。' },
+    ];
+
+    document.getElementById('r-advice').innerHTML = advice.map(a =>
+      `<div class="advice-item"><span class="advice-icon">✓</span><span>${a.text}</span></div>`
+    ).join('');
+
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('result').scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+</script>
+</body>
+</html>
