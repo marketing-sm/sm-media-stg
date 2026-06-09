@@ -136,6 +136,17 @@
     </div>
 
     <div class="section">
+      <div class="label">経験社数（現職含む）</div>
+      <select id="companies">
+        <option value="1">1社（新卒・転職なし）</option>
+        <option value="2">2社</option>
+        <option value="3">3社</option>
+        <option value="4">4社</option>
+        <option value="5">5社以上</option>
+      </select>
+    </div>
+
+    <div class="section">
       <div class="label">現在の年収</div>
       <div class="slider-row">
         <input type="range" id="income" min="100" max="2000" value="400" step="10">
@@ -222,6 +233,7 @@
   };
   const industryAdj = {it:1.18,finance:1.22,legal:1.28,medical:1.05,manu:1.02,const:0.98,transport:0.92,retail:0.88,food:0.78,service:0.85,media:1.08,edu:0.95,agri:0.75,govt:1.0,other:1.0};
   const empAdj = {full:1.0,part:0.55,contract:0.78,self:0.95};
+  const companyAdj = {1:0.92, 2:0.98, 3:1.03, 4:1.06, 5:1.08};
 
   function nearestAge(age) {
     return [20,25,30,35,40,45,50,55,60,65].reduce((a,b) => Math.abs(b-age) < Math.abs(a-age) ? b : a);
@@ -252,9 +264,11 @@
 
     const baseAge = nearestAge(age);
     const peer = peerData[gender][baseAge];
-    const adjAvg = Math.round(peer.avg * industryAdj[industry] * empAdj[employment]);
-    const adjLow = Math.round(peer.low * industryAdj[industry] * empAdj[employment]);
-    const adjHigh = Math.round(peer.high * industryAdj[industry] * empAdj[employment]);
+    const companies = parseInt(document.getElementById('companies').value);
+    const cAdj = companyAdj[companies] || 1.0;
+    const adjAvg = Math.round(peer.avg * industryAdj[industry] * empAdj[employment] * cAdj);
+    const adjLow = Math.round(peer.low * industryAdj[industry] * empAdj[employment] * cAdj);
+    const adjHigh = Math.round(peer.high * industryAdj[industry] * empAdj[employment] * cAdj);
     const pct = calcPercentile(income, adjAvg, adjLow, adjHigh);
 
     document.getElementById('r-income').textContent = income.toLocaleString() + '万円';
