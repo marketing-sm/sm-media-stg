@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/completed", "destination": "/completed/index.html" }
+  ]
+}
