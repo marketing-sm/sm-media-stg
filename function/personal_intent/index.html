@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Marker Media — モック</title>
+<style>
+  :root{
+    --navy:#00235d;
+    --navy-deep:#001738;
+    --blue:#0766f4;
+    --amber:#f59e0b;
+    --ink:#11192c;
+    --sub:#586079;
+    --faint:#8b93a7;
+    --line:#e7ebf2;
+    --line-soft:#eff2f7;
+    --bg:#ffffff;
+    --panel:#f7f9fc;
+    --signal:#0766f4;
+    --ai:#7b5cff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.7;font-size:15px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  /* ===== top nav ===== */
+  nav{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);z-index:50;}
+  nav .inner{display:flex;align-items:center;justify-content:space-between;height:60px;}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:16px;color:var(--navy);letter-spacing:.01em;}
+  .brand .mark{width:26px;height:26px;}
+  .navlinks{display:flex;gap:26px;font-size:13.5px;font-weight:600;color:var(--ink);}
+  .navlinks a{color:inherit;text-decoration:none;padding:4px 0;border-bottom:2px solid transparent;transition:.15s;}
+  .navlinks a:hover{color:var(--blue);border-color:var(--blue);}
+  .navcta{font-size:13px;font-weight:700;color:#fff;background:var(--navy);padding:9px 16px;border-radius:8px;text-decoration:none;}
+
+  /* ===== hero (compact, signature waveform) ===== */
+  .hero{position:relative;border-bottom:1px solid var(--line);overflow:hidden;background:var(--navy-deep);}
+  .hero .wrap{position:relative;padding:46px 28px 50px;z-index:2;}
+  .hero .eyebrow{font-size:11.5px;letter-spacing:.24em;color:var(--amber);font-weight:700;margin-bottom:16px;text-transform:uppercase;}
+  .hero h1{
+    font-size:38px;line-height:1.4;font-weight:800;color:#fff;letter-spacing:.01em;max-width:680px;
+  }
+  .hero h1 .hl{color:var(--amber);}
+  .hero p{margin-top:16px;font-size:15.5px;color:#aab8d8;max-width:540px;line-height:1.85;}
+  /* waveform signature */
+  .wave{position:absolute;left:0;right:0;bottom:0;height:130px;width:100%;z-index:1;opacity:.95;}
+  .hero-meta{margin-top:22px;display:flex;gap:8px;align-items:center;font-size:12px;color:#7e8cb0;}
+  .hero-meta .tag{border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:3px 12px;color:#c3cfe8;}
+
+  /* ===== theme nav (6 entries) ===== */
+  .themes{border-bottom:1px solid var(--line);background:var(--panel);}
+  .themes .wrap{display:flex;gap:0;overflow-x:auto;}
+  .theme{
+    flex:1;min-width:150px;padding:18px 18px;border-right:1px solid var(--line);text-decoration:none;
+    color:var(--ink);transition:.15s;position:relative;
+  }
+  .theme:first-child{border-left:1px solid var(--line);}
+  .theme:hover{background:#fff;}
+  .theme .tnum{font-size:11px;color:var(--faint);font-weight:700;letter-spacing:.05em;}
+  .theme .tname{font-size:15px;font-weight:700;color:var(--navy);margin-top:4px;}
+  .theme .tname .en{display:block;font-size:11px;color:var(--faint);font-weight:600;letter-spacing:.04em;margin-top:1px;}
+  .theme:hover .tname{color:var(--blue);}
+  .theme .axis{position:absolute;top:18px;right:14px;width:6px;height:6px;border-radius:50%;}
+  .theme .axis.x{background:var(--signal);}
+  .theme .axis.y{background:var(--ai);}
+
+  /* ===== section frame ===== */
+  section.block{padding:54px 0;border-bottom:1px solid var(--line-soft);}
+  .sechead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:26px;}
+  .sechead .l{display:flex;align-items:baseline;gap:13px;}
+  .sechead h2{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:.01em;}
+  .sechead .kick{font-size:11px;letter-spacing:.18em;color:var(--amber);font-weight:700;text-transform:uppercase;}
+  .sechead a.more{font-size:13px;color:var(--blue);text-decoration:none;font-weight:600;}
+
+  /* featured grid (magazine) */
+  .feat{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .card{background:#fff;padding:22px 22px 24px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;transition:.15s;min-height:200px;}
+  .card:hover{background:var(--panel);}
+  .card.lead{grid-row:span 2;background:linear-gradient(165deg,#00235d,#0046af);color:#fff;justify-content:flex-end;}
+  .card .ctype{font-size:10.5px;letter-spacing:.08em;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:20px;align-self:flex-start;margin-bottom:14px;}
+  .ctype.workbook{background:#fef0d3;color:#92600a;}
+  .ctype.guide{background:#dde9ff;color:#0a44b0;}
+  .ctype.column{background:#e6f7ee;color:#0a7d52;}
+  .ctype.playbook{background:#ede8ff;color:#5638c4;}
+  .ctype.onwhite{}
+  .card.lead .ctype{background:rgba(255,255,255,.16);color:#fff;}
+  .card h3{font-size:16px;font-weight:700;line-height:1.5;margin-bottom:8px;}
+  .card.lead h3{font-size:24px;line-height:1.45;margin-bottom:12px;}
+  .card p{font-size:13px;color:var(--sub);line-height:1.7;}
+  .card.lead p{color:#bccbe8;font-size:14px;}
+  .card .meta{margin-top:auto;padding-top:14px;font-size:11.5px;color:var(--faint);display:flex;gap:8px;align-items:center;}
+  .card.lead .meta{color:#8fa2cc;}
+
+  /* playbook index strip */
+  .pb{background:var(--navy);border-radius:14px;padding:28px 30px;color:#fff;display:grid;grid-template-columns:1fr 1.3fr;gap:30px;align-items:center;}
+  .pb .pl .k{font-size:11px;letter-spacing:.18em;color:var(--amber);font-weight:700;text-transform:uppercase;margin-bottom:10px;}
+  .pb .pl h2{font-size:21px;font-weight:800;line-height:1.5;margin-bottom:10px;color:#fff;}
+  .pb .pl p{font-size:13.5px;color:#aab8d8;line-height:1.75;}
+  .pb .pl .pbtn{display:inline-block;margin-top:16px;font-size:13px;font-weight:700;color:var(--navy);background:#fff;padding:9px 16px;border-radius:8px;text-decoration:none;}
+  .pblist{display:grid;gap:1px;background:rgba(255,255,255,.12);border-radius:10px;overflow:hidden;}
+  .pblist a{background:var(--navy);padding:13px 16px;text-decoration:none;color:#dde6f6;font-size:13.5px;display:flex;justify-content:space-between;align-items:center;transition:.15s;}
+  .pblist a:hover{background:#0a2d70;color:#fff;}
+  .pblist a .arw{color:var(--amber);}
+
+  /* video row */
+  .vids{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .vid{text-decoration:none;color:var(--ink);}
+  .vthumb{aspect-ratio:16/9;border-radius:11px;background:linear-gradient(135deg,#1a2a4a,#003288);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:11px;}
+  .vthumb .play{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;}
+  .vthumb .play::after{content:"";border-left:13px solid var(--navy);border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:3px;}
+  .vthumb .vlabel{position:absolute;top:11px;left:11px;font-size:10.5px;font-weight:700;color:#fff;background:rgba(0,0,0,.4);padding:3px 9px;border-radius:5px;letter-spacing:.04em;}
+  .vid h3{font-size:14px;font-weight:700;line-height:1.5;}
+  .vid .vmeta{font-size:11.5px;color:var(--faint);margin-top:5px;}
+
+  /* signup (light) */
+  .signup{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:34px 36px;text-align:center;}
+  .signup h2{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+  .signup p{font-size:13.5px;color:var(--sub);max-width:420px;margin:0 auto 18px;}
+  .signup .form{display:flex;gap:8px;max-width:400px;margin:0 auto;}
+  .signup input{flex:1;border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:14px;}
+  .signup button{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;}
+
+  footer{background:var(--navy-deep);color:#8b9bc0;padding:34px 0;font-size:12.5px;}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+
+  @media(max-width:880px){
+    .feat{grid-template-columns:1fr 1fr;}
+    .card.lead{grid-column:span 2;grid-row:auto;}
+    .vids{grid-template-columns:1fr;}
+    .pb{grid-template-columns:1fr;gap:20px;}
+    .navlinks{display:none;}
+    .hero h1{font-size:28px;}
+  }
+  @media(max-width:560px){
+    .feat{grid-template-columns:1fr;}
+    .card.lead{grid-column:auto;}
+    .wrap{padding:0 18px;}
+    .hero .wrap{padding:36px 18px 40px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="wrap inner">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 26 26" fill="none">
+        <rect width="26" height="26" rx="6" fill="#00235d"/>
+        <path d="M4 13 h4 l2 -6 l3 12 l2 -6 h5" stroke="#f59e0b" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      Sales Marker <span style="color:var(--faint);font-weight:600;">Media</span>
+    </div>
+    <div class="navlinks">
+      <a href="#">シグナル</a>
+      <a href="#">アプローチ</a>
+      <a href="#">パイプライン</a>
+      <a href="#">リサーチ</a>
+      <a href="#">Playbook</a>
+    </div>
+    <a href="#" class="navcta">Sales Marker とは</a>
+  </div>
+</nav>
+
+<!-- HERO (compact + waveform signature) -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">INTENT × AI</div>
+    <h1>シグナルの精度で、<br>商談を<span class="hl">ワクワク</span>に変える。</h1>
+    <p>顧客の「今」を捉えるシグナルと、それを動かすAI。Sales Marker のチームが、現場で使える実践知を発信します。</p>
+    <div class="hero-meta">
+      <span class="tag">シグナル起点</span>
+      <span class="tag">AIが基盤</span>
+      <span class="tag">すべてオープン</span>
+    </div>
+  </div>
+  <!-- signature: observed signal (solid) → AI prediction (dashed) -->
+  <svg class="wave" viewBox="0 0 1180 130" preserveAspectRatio="none">
+    <path d="M0 90 H180 l18 0 l12 -55 l20 90 l14 -60 l10 25 H440"
+          stroke="#0766f4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+    <path d="M440 90 H560 l16 0 l10 -38 l16 64 l12 -44 l8 18 H760 l300 -34"
+          stroke="#7b5cff" stroke-width="2.5" fill="none" stroke-dasharray="2 7" stroke-linecap="round"/>
+    <circle cx="440" cy="90" r="4" fill="#f59e0b"/>
+    <text x="150" y="120" fill="#5e6f9c" font-size="11" font-family="monospace">observed · signal</text>
+    <text x="800" y="48" fill="#7b5cff" font-size="11" font-family="monospace">predicted · AI</text>
+  </svg>
+</header>
+
+<!-- THEME NAV -->
+<div class="themes">
+  <div class="wrap">
+    <a class="theme" href="#"><span class="axis x"></span><div class="tnum">01</div><div class="tname">シグナル<span class="en">Signal</span></div></a>
+    <a class="theme" href="#"><span class="axis x"></span><div class="tnum">02</div><div class="tname">アプローチ設計<span class="en">Approach</span></div></a>
+    <a class="theme" href="#"><span class="axis x"></span><div class="tnum">03</div><div class="tname">パイプライン管理<span class="en">Pipeline</span></div></a>
+    <a class="theme" href="#"><span class="axis x"></span><div class="tnum">04</div><div class="tname">アカウント営業<span class="en">Account</span></div></a>
+    <a class="theme" href="#"><span class="axis y"></span><div class="tnum">05</div><div class="tname">ディープリサーチ<span class="en">Research</span></div></a>
+    <a class="theme" href="#"><span class="axis y"></span><div class="tnum">06</div><div class="tname">資料生成<span class="en">Document</span></div></a>
+  </div>
+</div>
+
+<!-- FEATURED -->
+<section class="block">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="l"><span class="kick">Featured</span><h2>注目のコンテンツ</h2></div>
+      <a class="more" href="#">すべて見る →</a>
+    </div>
+    <div class="feat">
+      <a class="card lead" href="#">
+        <span class="ctype">Guide</span>
+        <h3>シグナルを「見極める」ための実践ガイド</h3>
+        <p>インテントデータをどう読み、どの順でアプローチするか。MOFU向けの実装ガイドを公開。</p>
+        <div class="meta"><span>ガイド</span>·<span>シグナル</span></div>
+      </a>
+      <a class="card" href="#">
+        <span class="ctype workbook">Workbook</span>
+        <h3>シグナル可視化チェックリスト</h3>
+        <p>自社のシグナル捕捉度をその場で診断。</p>
+        <div class="meta"><span>その場で完了</span></div>
+      </a>
+      <a class="card" href="#">
+        <span class="ctype column">Column</span>
+        <h3>インテントデータは、なぜ「今」効くのか</h3>
+        <p>購買行動の変化と検知の論点を整理。</p>
+        <div class="meta"><span>コラム</span></div>
+      </a>
+      <a class="card" href="#">
+        <span class="ctype workbook">Workbook</span>
+        <h3>アプローチ設計テンプレート</h3>
+        <p>9類型のメッセージ設計フレーム。</p>
+        <div class="meta"><span>持ち帰れる</span></div>
+      </a>
+      <a class="card" href="#">
+        <span class="ctype workbook">Workbook</span>
+        <h3>パイプライン管理レビューシート</h3>
+        <p>失注前の兆候を構造化して捉える。</p>
+        <div class="meta"><span>持ち帰れる</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYBOOK INDEX -->
+<section class="block">
+  <div class="wrap">
+    <div class="pb">
+      <div class="pl">
+        <div class="k">Playbook</div>
+        <h2>現場の打ち手を、<br>1論点ずつ。</h2>
+        <p>実務でそのまま使える手順を、テーマ横断で集約。流し読みして、必要なものだけ持ち帰れます。</p>
+        <a class="pbtn" href="#">Playbook 一覧へ →</a>
+      </div>
+      <div class="pblist">
+        <a href="#"><span>シグナル検知後、最初の48時間にやること</span><span class="arw">→</span></a>
+        <a href="#"><span>「検討中で止まった」商談の再起動手順</span><span class="arw">→</span></a>
+        <a href="#"><span>アカウント単位で攻める時の優先順位づけ</span><span class="arw">→</span></a>
+        <a href="#"><span>AIリサーチを営業準備に組み込む型</span><span class="arw">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEOS -->
+<section class="block">
+  <div class="wrap">
+    <div class="sechead">
+      <div class="l"><span class="kick">Video</span><h2>動画・ウェビナーアーカイブ</h2></div>
+      <a class="more" href="#">すべて見る →</a>
+    </div>
+    <div class="vids">
+      <a class="vid" href="#">
+        <div class="vthumb"><span class="vlabel">共催ウェビナー</span><span class="play"></span></div>
+        <h3>インテント時代の営業組織のつくり方</h3>
+        <div class="vmeta">共催 · 48分</div>
+      </a>
+      <a class="vid" href="#">
+        <div class="vthumb"><span class="vlabel">PIVOT</span><span class="play"></span></div>
+        <h3>AIは営業の「リサーチ」をどう変えるか</h3>
+        <div class="vmeta">テーマ別 · 22分</div>
+      </a>
+      <a class="vid" href="#">
+        <div class="vthumb"><span class="vlabel">トレンド</span><span class="play"></span></div>
+        <h3>シグナル経営という考え方</h3>
+        <div class="vmeta">トレンド · 15分</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- SIGNUP -->
+<section class="block" style="border-bottom:none;">
+  <div class="wrap">
+    <div class="signup">
+      <h2>新着コンテンツを受け取る</h2>
+      <p>新しいPlaybookやガイドの公開をお知らせします。登録は任意、いつでも解除できます。</p>
+      <div class="form">
+        <input type="email" placeholder="you@company.com">
+        <button>受け取る</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>Sales Marker Media — INTENT × AI</div>
+    <div>© Sales Marker, Inc.</div>
+  </div>
+</footer>
+
+</body>
+</html>
