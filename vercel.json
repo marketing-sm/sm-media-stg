@@ -1,0 +1,13 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "https://sales-marker.jp/", "permanent": false }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    }
+  ]
+}

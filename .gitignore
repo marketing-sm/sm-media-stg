@@ -2,29 +2,21 @@
 .DS_Store
 .DS_Store?
 ._*
-.Spotlight-V8
-.Trashes
-ehthumbs.db
 Thumbs.db
+ehthumbs.db
 
 # Editor
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
+*.sublime-project
+*.sublime-workspace
 
 # Logs
 *.log
 npm-debug.log*
 
-# Dependencies (将来 npm 等を使う場合)
+# Dependencies (将来的にnpm等を使う場合)
 node_modules/
-.npm
-
-# Build outputs
-dist/
-build/
 
 # Environment
 .env
