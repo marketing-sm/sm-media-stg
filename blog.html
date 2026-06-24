@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ブログ — Sales Marker Media</title>
+<style>
+  :root{
+    --navy:#00235d; --navy-deep:#001738; --blue:#0766f4; --amber:#f59e0b;
+    --ink:#11192c; --sub:#586079; --faint:#8b93a7; --line:#e7ebf2;
+    --line-soft:#eff2f7; --bg:#ffffff; --panel:#f7f9fc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  /* nav */
+  nav{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);z-index:50;}
+  nav .inner{display:flex;align-items:center;justify-content:space-between;height:60px;}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:16px;color:var(--navy);letter-spacing:.01em;text-decoration:none;}
+  .brand .mark{width:26px;height:26px;}
+  .navlinks{display:flex;gap:26px;font-size:13.5px;font-weight:600;color:var(--ink);}
+  .navlinks a{color:inherit;text-decoration:none;padding:4px 0;border-bottom:2px solid transparent;transition:.15s;}
+  .navlinks a:hover{color:var(--blue);border-color:var(--blue);}
+
+  /* page head */
+  .phead{background:var(--navy-deep);color:#fff;padding:46px 0 44px;}
+  .phead .eyebrow{font-size:11.5px;letter-spacing:.24em;color:var(--amber);font-weight:700;margin-bottom:12px;text-transform:uppercase;}
+  .phead h1{font-size:32px;font-weight:800;letter-spacing:.01em;}
+  .phead p{margin-top:12px;font-size:14.5px;color:#aab8d8;max-width:560px;}
+
+  /* list */
+  section.block{padding:48px 0;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px 24px;}
+  .post{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;transition:.15s;}
+  .post:hover{box-shadow:0 8px 28px rgba(0,35,93,.10);transform:translateY(-2px);}
+  .thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#1a2a4a,#003288);overflow:hidden;}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .pbody{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1;}
+  .post h3{font-size:15.5px;font-weight:700;line-height:1.55;margin-bottom:8px;}
+  .post .excerpt{font-size:13px;color:var(--sub);line-height:1.7;}
+  .post .meta{margin-top:auto;padding-top:14px;font-size:11.5px;color:var(--faint);display:flex;gap:8px;align-items:center;}
+  .cat{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:#0a44b0;background:#dde9ff;padding:3px 9px;border-radius:20px;align-self:flex-start;margin-bottom:12px;}
+
+  .state{padding:60px 0;text-align:center;color:var(--sub);font-size:14px;}
+  .state.err{color:#b42318;}
+
+  /* pager */
+  .pager{display:flex;justify-content:center;gap:10px;margin-top:38px;}
+  .pager button{border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13px;font-weight:600;padding:9px 18px;border-radius:8px;cursor:pointer;transition:.15s;}
+  .pager button:hover:not(:disabled){border-color:var(--blue);color:var(--blue);}
+  .pager button:disabled{opacity:.4;cursor:default;}
+  .pager .count{align-self:center;font-size:12.5px;color:var(--faint);}
+
+  footer{background:var(--navy-deep);color:#8b9bc0;padding:34px 0;font-size:12.5px;margin-top:20px;}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+
+  @media(max-width:880px){ .grid{grid-template-columns:1fr 1fr;} .navlinks{display:none;} }
+  @media(max-width:560px){ .grid{grid-template-columns:1fr;} .wrap{padding:0 18px;} }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap inner">
+    <a class="brand" href="/">
+      <svg class="mark" viewBox="0 0 26 26" fill="none">
+        <rect width="26" height="26" rx="6" fill="#00235d"/>
+        <path d="M4 13 h4 l2 -6 l3 12 l2 -6 h5" stroke="#f59e0b" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      Sales Marker <span style="color:var(--faint);font-weight:600;">Media</span>
+    </a>
+    <div class="navlinks">
+      <a href="/">ホーム</a>
+      <a href="/blog.html">ブログ</a>
+    </div>
+  </div>
+</nav>
+
+<header class="phead">
+  <div class="wrap">
+    <div class="eyebrow">Blog</div>
+    <h1>ブログ</h1>
+    <p>シグナルとAIを起点にした、現場で使える実践知をお届けします。</p>
+  </div>
+</header>
+
+<section class="block">
+  <div class="wrap">
+    <div id="list" class="grid"></div>
+    <div id="state" class="state">読み込み中…</div>
+    <div class="pager" id="pager" style="display:none;">
+      <button id="prev">← 前へ</button>
+      <span class="count" id="count"></span>
+      <button id="next">次へ →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>Sales Marker Media — INTENT × AI</div>
+    <div>© Sales Marker, Inc.</div>
+  </div>
+</footer>
+
+<script>
+  const PER_PAGE = 12;
+  const listEl = document.getElementById("list");
+  const stateEl = document.getElementById("state");
+  const pagerEl = document.getElementById("pager");
+  const prevBtn = document.getElementById("prev");
+  const nextBtn = document.getElementById("next");
+  const countEl = document.getElementById("count");
+
+  let offset = 0;
+  let total = 0;
+
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;");
+  }
+  function fmtDate(iso){
+    if(!iso) return "";
+    const d = new Date(iso);
+    if(isNaN(d)) return "";
+    return d.getFullYear() + "." + String(d.getMonth()+1).padStart(2,"0") + "." + String(d.getDate()).padStart(2,"0");
+  }
+  // リッチエディタ本文からプレーンな抜粋を作る
+  function excerpt(html, n){
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html || "";
+    const text = (tmp.textContent || "").replace(/\s+/g," ").trim();
+    return text.length > n ? text.slice(0,n) + "…" : text;
+  }
+
+  function thumb(post){
+    if(post.eyecatch && post.eyecatch.url){
+      return '<div class="thumb"><img src="' + esc(post.eyecatch.url) + '?w=640&fit=crop" alt="" loading="lazy"></div>';
+    }
+    return '<div class="thumb"></div>';
+  }
+
+  function categoryLabel(post){
+    if(post.category && typeof post.category === "object" && post.category.name){
+      return '<span class="cat">' + esc(post.category.name) + '</span>';
+    }
+    if(typeof post.category === "string" && post.category){
+      return '<span class="cat">' + esc(post.category) + '</span>';
+    }
+    return "";
+  }
+
+  function render(items){
+    listEl.innerHTML = items.map(function(p){
+      return '<a class="post" href="/blog-detail.html?id=' + encodeURIComponent(p.id) + '">' +
+        thumb(p) +
+        '<div class="pbody">' +
+          categoryLabel(p) +
+          '<h3>' + esc(p.title || "（無題）") + '</h3>' +
+          '<p class="excerpt">' + esc(excerpt(p.content, 70)) + '</p>' +
+          '<div class="meta"><span>' + fmtDate(p.publishedAt || p.createdAt) + '</span></div>' +
+        '</div>' +
+      '</a>';
+    }).join("");
+  }
+
+  function updatePager(){
+    pagerEl.style.display = "flex";
+    const from = total === 0 ? 0 : offset + 1;
+    const to = Math.min(offset + PER_PAGE, total);
+    countEl.textContent = total === 0 ? "0件" : (from + "–" + to + " / " + total + "件");
+    prevBtn.disabled = offset <= 0;
+    nextBtn.disabled = offset + PER_PAGE >= total;
+  }
+
+  async function load(){
+    stateEl.style.display = "block";
+    stateEl.className = "state";
+    stateEl.textContent = "読み込み中…";
+    listEl.innerHTML = "";
+    pagerEl.style.display = "none";
+    try{
+      const res = await fetch("/api/blog?limit=" + PER_PAGE + "&offset=" + offset);
+      const data = await res.json();
+      if(!res.ok){
+        throw new Error(data && data.error ? data.error : ("エラー " + res.status));
+      }
+      total = data.totalCount || 0;
+      const items = data.contents || [];
+      if(items.length === 0){
+        stateEl.textContent = "まだ記事がありません。";
+        return;
+      }
+      stateEl.style.display = "none";
+      render(items);
+      updatePager();
+    }catch(e){
+      stateEl.className = "state err";
+      stateEl.textContent = "読み込みに失敗しました：" + e.message;
+    }
+  }
+
+  prevBtn.addEventListener("click", function(){
+    offset = Math.max(0, offset - PER_PAGE);
+    load(); window.scrollTo({top:0,behavior:"smooth"});
+  });
+  nextBtn.addEventListener("click", function(){
+    offset = offset + PER_PAGE;
+    load(); window.scrollTo({top:0,behavior:"smooth"});
+  });
+
+  load();
+</script>
+</body>
+</html>

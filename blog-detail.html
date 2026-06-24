@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>記事 — Sales Marker Media</title>
+<style>
+  :root{
+    --navy:#00235d; --navy-deep:#001738; --blue:#0766f4; --amber:#f59e0b;
+    --ink:#11192c; --sub:#586079; --faint:#8b93a7; --line:#e7ebf2;
+    --line-soft:#eff2f7; --bg:#ffffff; --panel:#f7f9fc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--blue);}
+  .wrap{max-width:760px;margin:0 auto;padding:0 28px;}
+
+  nav{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);z-index:50;}
+  nav .inner{display:flex;align-items:center;justify-content:space-between;height:60px;max-width:1180px;margin:0 auto;padding:0 28px;}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:16px;color:var(--navy);text-decoration:none;}
+  .brand .mark{width:26px;height:26px;}
+  .navlinks{display:flex;gap:26px;font-size:13.5px;font-weight:600;}
+  .navlinks a{color:var(--ink);text-decoration:none;padding:4px 0;border-bottom:2px solid transparent;transition:.15s;}
+  .navlinks a:hover{color:var(--blue);border-color:var(--blue);}
+
+  article{padding:44px 0 60px;}
+  .back{display:inline-block;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:24px;}
+  .cat{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;color:#0a44b0;background:#dde9ff;padding:3px 10px;border-radius:20px;margin-bottom:14px;}
+  h1.title{font-size:30px;font-weight:800;line-height:1.45;color:var(--navy);letter-spacing:.01em;}
+  .date{margin-top:14px;font-size:12.5px;color:var(--faint);}
+  .eyecatch{margin:28px 0;border-radius:14px;overflow:hidden;border:1px solid var(--line);}
+  .eyecatch img{width:100%;display:block;}
+
+  /* 本文（microCMS リッチエディタ出力） */
+  .content{font-size:15.5px;line-height:1.95;color:var(--ink);}
+  .content h2{font-size:21px;font-weight:800;color:var(--navy);margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);}
+  .content h3{font-size:17px;font-weight:700;color:var(--navy);margin:28px 0 10px;}
+  .content p{margin:0 0 18px;}
+  .content ul,.content ol{margin:0 0 18px 1.4em;}
+  .content li{margin:6px 0;}
+  .content img{max-width:100%;height:auto;border-radius:10px;margin:18px 0;}
+  .content a{color:var(--blue);text-decoration:underline;}
+  .content blockquote{border-left:3px solid var(--amber);background:var(--panel);padding:12px 18px;margin:0 0 18px;color:var(--sub);border-radius:0 8px 8px 0;}
+  .content pre{background:#0d1b34;color:#e6edfb;padding:16px 18px;border-radius:10px;overflow-x:auto;font-size:13.5px;margin:0 0 18px;}
+  .content code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  .content table{border-collapse:collapse;width:100%;margin:0 0 18px;font-size:14px;}
+  .content th,.content td{border:1px solid var(--line);padding:8px 12px;text-align:left;}
+  .content th{background:var(--panel);}
+
+  .state{padding:80px 0;text-align:center;color:var(--sub);}
+  .state.err{color:#b42318;}
+
+  footer{background:var(--navy-deep);color:#8b9bc0;padding:34px 0;font-size:12.5px;}
+  footer .inner{max-width:1180px;margin:0 auto;padding:0 28px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+
+  @media(max-width:560px){ .wrap{padding:0 18px;} h1.title{font-size:24px;} .navlinks{display:none;} }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <a class="brand" href="/">
+      <svg class="mark" viewBox="0 0 26 26" fill="none">
+        <rect width="26" height="26" rx="6" fill="#00235d"/>
+        <path d="M4 13 h4 l2 -6 l3 12 l2 -6 h5" stroke="#f59e0b" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      Sales Marker <span style="color:var(--faint);font-weight:600;">Media</span>
+    </a>
+    <div class="navlinks">
+      <a href="/">ホーム</a>
+      <a href="/blog.html">ブログ</a>
+    </div>
+  </div>
+</nav>
+
+<article class="wrap">
+  <a class="back" href="/blog.html">← ブログ一覧へ</a>
+  <div id="post"></div>
+  <div id="state" class="state">読み込み中…</div>
+</article>
+
+<footer>
+  <div class="inner">
+    <div>Sales Marker Media — INTENT × AI</div>
+    <div>© Sales Marker, Inc.</div>
+  </div>
+</footer>
+
+<script>
+  const postEl = document.getElementById("post");
+  const stateEl = document.getElementById("state");
+
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function fmtDate(iso){
+    if(!iso) return "";
+    const d = new Date(iso);
+    if(isNaN(d)) return "";
+    return d.getFullYear() + "." + String(d.getMonth()+1).padStart(2,"0") + "." + String(d.getDate()).padStart(2,"0");
+  }
+  function categoryLabel(post){
+    if(post.category && typeof post.category === "object" && post.category.name) return esc(post.category.name);
+    if(typeof post.category === "string" && post.category) return esc(post.category);
+    return "";
+  }
+
+  function getId(){
+    const p = new URLSearchParams(location.search);
+    return p.get("id");
+  }
+
+  async function load(){
+    const id = getId();
+    if(!id){
+      stateEl.className = "state err";
+      stateEl.textContent = "記事IDが指定されていません。";
+      return;
+    }
+    try{
+      const res = await fetch("/api/blog?id=" + encodeURIComponent(id));
+      const data = await res.json();
+      if(!res.ok){
+        throw new Error(data && data.error ? data.error : ("エラー " + res.status));
+      }
+      stateEl.style.display = "none";
+      document.title = (data.title || "記事") + " — Sales Marker Media";
+
+      const cat = categoryLabel(data);
+      const eyecatch = (data.eyecatch && data.eyecatch.url)
+        ? '<div class="eyecatch"><img src="' + esc(data.eyecatch.url) + '?w=1200" alt=""></div>'
+        : "";
+
+      postEl.innerHTML =
+        (cat ? '<span class="cat">' + cat + '</span>' : "") +
+        '<h1 class="title">' + esc(data.title || "（無題）") + '</h1>' +
+        '<div class="date">' + fmtDate(data.publishedAt || data.createdAt) + '</div>' +
+        eyecatch +
+        // 本文は microCMS リッチエディタが生成した自社管理の HTML
+        '<div class="content">' + (data.content || "") + '</div>';
+    }catch(e){
+      stateEl.className = "state err";
+      stateEl.textContent = "読み込みに失敗しました：" + e.message;
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
